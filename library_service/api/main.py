@@ -22,3 +22,8 @@ def create_item(item: dict):
     return item
 
 
+@app.get("/query/")
+async def read_item(skip: int = 0, limit: int = 10):
+    return {
+        "message": skip + limit
+    }
