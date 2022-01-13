@@ -17,3 +17,11 @@ class Schemas:
 
         class Config:
             orm_mode = True
+    
+    class UserLogin(BaseModel):
+        email: str
+        password: str
+
+    
+    class Role(BaseModel):
+        role: str
