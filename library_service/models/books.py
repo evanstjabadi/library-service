@@ -1,12 +1,17 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+
+from library_service.models.db import Base
 
 
-class Book(BaseModel):
-    id: int
-    title: str
-    author: str
-    year: int
+class Book(Base):
+    __tablename__ = "books"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(50), nullable=False)
+    author = Column(String(50), nullable=False)
+    year = Column(Integer, nullable=False)
     genre: Optional[str] = None
     description: Optional[str] = None
