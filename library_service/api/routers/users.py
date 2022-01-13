@@ -1,6 +1,7 @@
 from typing import Dict
+from functools import wraps
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,Header
 from sqlalchemy.orm import Session
 
 from library_service.controllers.users import Controller
@@ -63,3 +64,28 @@ def read_user_by_email(user_email: str, db: Session = Depends(get_db)) -> schema
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found by email")
     return db_user
+
+
+@router.put('/users/{user_id}', response_model=schemas.User)
+def update_user(
+    user_id: int,
+    role: schemas.Role,
+    db: Session = Depends(get_db)
+) -> schemas.User:
+    db_user = controller.modify_role(db=db, user_id=user_id, role=role)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+
+# Authentication and Authorization
+@router.post("/users/login/")
+def login_user(
+    user: schemas.UserLogin, db: Session = Depends(get_db)
+) -> Dict:
+    db_user = controller.get_user_by_email(db, email=user.email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not controller.verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    return {"status": "success", "data": schemas.User(**db_user.__dict__)} 

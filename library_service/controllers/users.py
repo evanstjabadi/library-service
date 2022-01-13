@@ -26,3 +26,14 @@ class Controller:
         db.commit()
         db.refresh(db_user)
         return db_user
+
+    def verify_password(self, plain_password: str, hashed_password: str):
+        return plain_password + "notreallyhashed" == hashed_password
+
+    def modify_role(self, db: Session, user_id: int, role: schemas.Role):
+        user = self.get_user(db=db, user_id=user_id)
+        print(role.role)
+        user.role = role.role
+        db.commit()
+        db.refresh(user)
+        return user
