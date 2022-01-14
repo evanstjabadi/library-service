@@ -15,3 +15,5 @@ class Book(Base):
     year = Column(Integer, nullable=False)
     genre: Optional[str] = None
     description: Optional[str] = None
+    author = relationship("User", back_populates="books")
+    
