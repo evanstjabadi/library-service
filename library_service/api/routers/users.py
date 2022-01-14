@@ -1,13 +1,13 @@
-from typing import Dict
 from functools import wraps
+from typing import Dict
 
-from fastapi import APIRouter, Depends, HTTPException,Header
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
 from library_service.controllers.users import Controller
+from library_service.models.db import engine, session
 from library_service.models.users import Base
 from library_service.schemas.users import Schemas
-from library_service.models.db import session, engine
 
 Base.metadata.create_all(bind=engine)
 
@@ -66,11 +66,9 @@ def read_user_by_email(user_email: str, db: Session = Depends(get_db)) -> schema
     return db_user
 
 
-@router.put('/users/{user_id}', response_model=schemas.User)
+@router.put("/users/{user_id}", response_model=schemas.User)
 def update_user(
-    user_id: int,
-    role: schemas.Role,
-    db: Session = Depends(get_db)
+    user_id: int, role: schemas.Role, db: Session = Depends(get_db)
 ) -> schemas.User:
     db_user = controller.modify_role(db=db, user_id=user_id, role=role)
     if db_user is None:
@@ -80,12 +78,10 @@ def update_user(
 
 # Authentication and Authorization
 @router.post("/users/login/")
-def login_user(
-    user: schemas.UserLogin, db: Session = Depends(get_db)
-) -> Dict:
+def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)) -> Dict:
     db_user = controller.get_user_by_email(db, email=user.email)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     if not controller.verify_password(user.password, db_user.password):
         raise HTTPException(status_code=400, detail="Incorrect password")
-    return {"status": "success", "data": schemas.User(**db_user.__dict__)} 
+    return {"status": "success", "data": schemas.User(**db_user.__dict__)}
