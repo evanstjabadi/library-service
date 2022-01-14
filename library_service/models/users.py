@@ -14,3 +14,4 @@ class User(Base):
     role = Column(
         String(50), nullable=False, default="reader"
     )  # reader, librarian, author, super
+    books = relationship("Book", back_populates="author")
